@@ -9,11 +9,11 @@ import (
 )
 
 type Msg struct {
-	msg string
+	Msg string `json:"msg"`
 }
 
-func encodeMessage(msg string) ([4]byte, []byte) {
-	b, err := json.Marshal(Msg{msg:msg})
+func encodeMessage(msg string) ([]byte, []byte) {
+	b, err := json.Marshal(Msg{Msg:msg})
 	if err != nil {
 		panic(err)
 	}
@@ -29,7 +29,7 @@ func main() {
 		cmdString := readInput()
 		cmdString = strings.TrimSuffix(cmdString, "\n")
 		bl, b := encodeMessage(query(client, cmdString))
-		fmt.Print(bl)
-		fmt.Print(b)
+		fmt.Print(string(bl))
+		fmt.Print(string(b))
 	}
 }
