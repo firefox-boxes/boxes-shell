@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/rpc"
+	"os"
+	"strconv"
 	"strings"
 	"unsafe"
 )
@@ -30,7 +32,7 @@ func sendMessage(msg string) {
 func main() {
 	client, _ := rpc.Dial("tcp", "127.0.0.1:6688")
 	defer client.Close()
-	sendMessage("<connected>")
+	sendMessage(query(client, "whoami " + strconv.Itoa(os.Getppid())))
 	for {
 		cmdString := readInput()
 		cmdString = strings.TrimSuffix(cmdString, "\n")
