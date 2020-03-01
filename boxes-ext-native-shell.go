@@ -12,7 +12,7 @@ type Msg struct {
 	msg string
 }
 
-func encodeMessage(msg) ([4]byte, []byte) {
+func encodeMessage(msg string) ([4]byte, []byte) {
 	b, err := json.Marshal(Msg{msg:msg})
 	if err != nil {
 		panic(err)
