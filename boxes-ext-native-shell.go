@@ -21,15 +21,19 @@ func encodeMessage(msg string) ([]byte, []byte) {
 	return (*[4]byte)(unsafe.Pointer(&bl))[:], b
 }
 
+func sendMessage(msg string) {
+	bl, b := encodeMessage(msg)
+	fmt.Print(string(bl))
+	fmt.Print(string(b))
+}
+
 func main() {
 	client, _ := rpc.Dial("tcp", "127.0.0.1:6688")
 	defer client.Close()
-	fmt.Println("<connected>")
+	sendMessage("<connected>")
 	for {
 		cmdString := readInput()
 		cmdString = strings.TrimSuffix(cmdString, "\n")
-		bl, b := encodeMessage(query(client, cmdString))
-		fmt.Print(string(bl))
-		fmt.Print(string(b))
+		sendMessage(query(client, cmdString))
 	}
 }
