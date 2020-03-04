@@ -29,12 +29,18 @@ func sendMessage(msg string) {
 	fmt.Print(string(b))
 }
 
+func decode(msg string) string {
+	var command string
+	json.Unmarshal([]byte(msg), &command)
+	return command
+}
+
 func main() {
 	client, _ := rpc.Dial("tcp", "127.0.0.1:6688")
 	defer client.Close()
 	sendMessage(query(client, "whoami " + strconv.Itoa(os.Getppid())))
 	for {
-		cmdString := readInput()
+		cmdString := decode(readInput())
 		cmdString = strings.TrimSuffix(cmdString, "\n")
 		sendMessage(query(client, cmdString))
 	}
