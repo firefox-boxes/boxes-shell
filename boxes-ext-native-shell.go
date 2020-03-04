@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"net/rpc"
@@ -33,6 +34,16 @@ func decode(msg string) string {
 	var command string
 	json.Unmarshal([]byte(msg), &command)
 	return command
+}
+
+func readInput() string {
+	reader := bufio.NewReader(os.Stdin)
+	length := make([]byte, 4, 4)
+	reader.Read(length)
+	l := *(*uint32)(unsafe.Pointer(&length))
+	input := make([]byte, l, l)
+	reader.Read(input)
+	return string(input)
 }
 
 func main() {
