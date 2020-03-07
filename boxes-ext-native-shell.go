@@ -30,20 +30,20 @@ func sendMessage(msg string) {
 	fmt.Print(string(b))
 }
 
-func decode(msg string) string {
+func decode(msg []byte) string {
 	var command string
-	json.Unmarshal([]byte(msg), &command)
+	json.Unmarshal(msg, &command)
 	return command
 }
 
-func readInput() string {
+func readInput() []byte {
 	reader := bufio.NewReader(os.Stdin)
-	length := make([]byte, 4, 4)
+	length := make([]byte, 0, 4)
 	reader.Read(length)
 	l := *(*uint32)(unsafe.Pointer(&length))
 	input := make([]byte, l, l)
 	reader.Read(input)
-	return string(input)
+	return input
 }
 
 func main() {
