@@ -4,11 +4,14 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/rpc"
 	"os"
 	"strconv"
 	"strings"
 	"unsafe"
+
+	"github.com/firefox-boxes/boxes-shell/logging"
 )
 
 type Msg struct {
@@ -25,6 +28,7 @@ func encodeMessage(msg string) ([]byte, []byte) {
 }
 
 func sendMessage(msg string) {
+	logging.Info("Sending `%v`", msg)
 	bl, b := encodeMessage(msg)
 	fmt.Print(string(bl))
 	fmt.Print(string(b))
@@ -33,21 +37,38 @@ func sendMessage(msg string) {
 func decode(msg []byte) string {
 	var command string
 	json.Unmarshal(msg, &command)
+	logging.Info("Arrival:3 m=%v decoded=%v", msg, command)
 	return command
 }
 
 func readInput() []byte {
 	reader := bufio.NewReader(os.Stdin)
-	length := make([]byte, 0, 4)
-	reader.Read(length)
+	length := [4]byte{}
+	for i := 0; i < 4; i++ {
+		b := make([]byte, 1)
+		_, err := os.Stdin.Read(b)
+		logging.Info("%v", err)
+		length[i] = b[0]
+	}
 	l := *(*uint32)(unsafe.Pointer(&length))
+	logging.Info("Arrival:1 lb=%v l=%v", length, l)
 	input := make([]byte, l, l)
-	reader.Read(input)
+	n, err := io.ReadFull(reader, input)
+	if err != nil {
+		logging.Info("%v bytes read: %v", err, n)
+		panic(err)
+	}
+	logging.Info("Arrival:2 content=%v", logging.ProcessStr(string(input), 40))
 	return input
 }
 
 func main() {
-	client, _ := rpc.Dial("tcp", "127.0.0.1:6688")
+	client, err := rpc.Dial("tcp", "127.0.0.1:6688")
+	if err != nil {
+		logging.Info(err.Error())
+		panic(err)
+	}
+	logging.Info("Connected to 127.0.0.1:6688")
 	defer client.Close()
 	sendMessage(query(client, "whoami " + strconv.Itoa(os.Getppid())))
 	for {
