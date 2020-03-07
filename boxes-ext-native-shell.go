@@ -44,16 +44,15 @@ func decode(msg []byte) string {
 func readInput() []byte {
 	reader := bufio.NewReader(os.Stdin)
 	length := [4]byte{}
-	for i := 0; i < 4; i++ {
-		b := make([]byte, 1)
-		_, err := os.Stdin.Read(b)
-		logging.Info("%v", err)
-		length[i] = b[0]
+	n, err := io.ReadFull(reader, length[:])
+	if err != nil {
+		logging.Info("%v bytes read: %v", err, n)
+		panic(err)
 	}
 	l := *(*uint32)(unsafe.Pointer(&length))
 	logging.Info("Arrival:1 lb=%v l=%v", length, l)
 	input := make([]byte, l, l)
-	n, err := io.ReadFull(reader, input)
+	n, err = io.ReadFull(reader, input)
 	if err != nil {
 		logging.Info("%v bytes read: %v", err, n)
 		panic(err)
