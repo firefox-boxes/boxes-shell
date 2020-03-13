@@ -25,6 +25,7 @@ func main() {
 		fmt.Print(">>> ")
 		cmdString := readInput()
 		cmdString = strings.TrimSuffix(cmdString, "\n")
+		cmdString = strings.TrimSuffix(cmdString, "\r")
 		fmt.Println(query(client, cmdString))
 		fmt.Println()
 	}
