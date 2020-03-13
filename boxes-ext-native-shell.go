@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/rpc"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -73,6 +74,31 @@ func main() {
 	for {
 		cmdString := decode(readInput())
 		cmdString = strings.TrimSuffix(cmdString, "\n")
-		sendMessage(query(client, cmdString))
+		result := query(client, cmdString)
+		if strings.HasPrefix(cmdString, "box:new") {
+			home, err := os.UserHomeDir()
+			if err != nil {
+				logging.Info(err.Error())
+				panic(err)
+			}
+			to, err := os.OpenFile(path.Join(home, ".FirefoxBoxes", "Boxes", result, "extensions", "boxes@whatsyouridea.com.xpi"), os.O_WRONLY|os.O_CREATE, 0644)
+			if err != nil {
+				logging.Info(err.Error())
+				panic(err)
+			}
+			from, err := os.Open(path.Join(home, ".FirefoxBoxes", "boxes-ext-latest.xpi"))
+			if err != nil {
+				logging.Info(err.Error())
+				panic(err)
+			}
+			_, err = io.Copy(to, from)
+			if err != nil {
+				logging.Info(err.Error())
+				panic(err)
+			}
+			to.Close()
+			from.Close()
+		}
+		sendMessage(result)
 	}
 }
